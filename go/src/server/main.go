@@ -13,7 +13,6 @@ import (
 	"path/filepath"
 	"server/db"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gin-contrib/multitemplate"
@@ -21,9 +20,11 @@ import (
 )
 
 func nextGame(c *gin.Context) {
-	var training_run db.TrainingRun
+	training_run := db.TrainingRun{
+		Active: true,
+	}
 	// TODO(gary): Need to set some sort of priority system here.
-	err := db.GetDB().Preload("BestNetwork").First(&training_run).Error
+	err := db.GetDB().Preload("BestNetwork").Where(&training_run).First(&training_run).Error
 	if err != nil {
 		log.Println(err)
 		c.String(http.StatusBadRequest, "Invalid training run")
@@ -37,6 +38,7 @@ func nextGame(c *gin.Context) {
 		"trainingId": training_run.ID,
 		"networkId":  training_run.BestNetwork.ID,
 		"sha":        training_run.BestNetwork.Sha,
+		"params":     training_run.TrainParameters,
 	}
 	c.JSON(http.StatusOK, result)
 }
@@ -342,9 +344,46 @@ func game(c *gin.Context) {
 		return
 	}
 
-	log.Print(strings.Replace(game.Pgn, "\n", " ", -1))
 	c.HTML(http.StatusOK, "game", gin.H{
 		"pgn": game.Pgn,
+	})
+}
+
+func training_run(c *gin.Context) {
+	training_run, err := getTrainingRun(c.Param("id"))
+	if err != nil {
+		log.Println(err)
+		c.String(500, "Internal error")
+		return
+	}
+
+	c.HTML(http.StatusOK, "training_run", gin.H{
+		"active":      training_run.Active,
+		"description": training_run.Description,
+	})
+}
+
+func training_runs(c *gin.Context) {
+	training_runs := []db.TrainingRun{}
+	err := db.GetDB().Find(&training_runs).Error
+	if err != nil {
+		log.Println(err)
+		c.String(500, "Internal error")
+		return
+	}
+
+	rows := []gin.H{}
+	for _, training_run := range training_runs {
+		rows = append(rows, gin.H{
+			"id":          training_run.ID,
+			"active":      training_run.Active,
+			"trainParams": training_run.TrainParameters,
+			"description": training_run.Description,
+		})
+	}
+
+	c.HTML(http.StatusOK, "training_runs", gin.H{
+		"training_runs": rows,
 	})
 }
 
@@ -353,6 +392,7 @@ func createTemplates() multitemplate.Render {
 	r.AddFromFiles("index", "templates/base.tmpl", "templates/index.tmpl")
 	r.AddFromFiles("user", "templates/base.tmpl", "templates/user.tmpl")
 	r.AddFromFiles("game", "templates/base.tmpl", "templates/game.tmpl")
+	r.AddFromFiles("training_runs", "templates/base.tmpl", "templates/training_runs.tmpl")
 	return r
 }
 
@@ -367,6 +407,8 @@ func setupRouter() *gin.Engine {
 	router.GET("/get_network", getNetwork)
 	router.GET("/user/:name", user)
 	router.GET("/game/:id", game)
+	router.GET("/training_runs", training_runs)
+	router.GET("/training_run/:id", training_run)
 	router.POST("/next_game", nextGame)
 	router.POST("/upload_game", uploadGame)
 	router.POST("/upload_network", uploadNetwork)

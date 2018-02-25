@@ -25,7 +25,7 @@ func uploadGame(httpClient *http.Client, path string, pgn string, nextGame clien
 	extraParams := map[string]string{
 		"user":        *USER,
 		"password":    *PASSWORD,
-		"version":     "1",
+		"version":     "2",
 		"training_id": strconv.Itoa(int(nextGame.TrainingId)),
 		"network_id":  strconv.Itoa(int(nextGame.NetworkId)),
 		"pgn":         pgn,
