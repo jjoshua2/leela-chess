@@ -871,7 +871,7 @@ void Position::do_null_move(StateInfo& newSt) {
 void Position::undo_null_move() {
 
   assert(!checkers());
-)
+
   st = st->previous;
   sideToMove = ~sideToMove;
 }
