@@ -905,7 +905,7 @@ Key Position::key_after(Move m) const {
 
 bool Position::is_draw() const {  //--didn't understand this _ply_ parameter; deleting it.
 
-  if (st->rule50 > 99 && (!checkers() || MoveList<LEGAL>(*this).size()))
+  if (st->rule50 > 99 && (!checkers() || MoveList<LEGAL>(*this).size()) || popcount(pos.pieces() == 2)
       return true;
 
   int end = std::min(st->rule50, st->pliesFromNull);
