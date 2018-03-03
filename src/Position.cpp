@@ -882,7 +882,7 @@ Move Position::get_move() const {
 }
 
 
-/// Position::key_after() computes the new hash key after the given move. Needed
+)/// Position::key_after() computes the new hash key after the given move. Needed
 /// for speculative prefetch. It doesn't recognize special moves like castling,
 /// en-passant and promotions.
 
