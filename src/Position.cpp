@@ -907,6 +907,16 @@ bool Position::is_draw() const {  //--didn't understand this _ply_ parameter; de
 
   if (st->rule50 > 99 && (!checkers() || MoveList<LEGAL>(*this).size()))
       return true;
+  
+  if (popcount(pos.pieces() <= 3) {
+      StateInfo st;
+      Position p;
+      p.set(pos.fen(), pos.is_chess960(), &st, pos.this_thread());
+      Tablebases::ProbeState s1, s2;
+      Tablebases::WDLScore wdl = Tablebases::probe_wdl(p, &s1);
+      if (wdl == 0)
+          return true;
+  }
 
   int end = std::min(st->rule50, st->pliesFromNull);
 
