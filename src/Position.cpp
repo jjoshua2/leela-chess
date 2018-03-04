@@ -849,7 +849,8 @@ void Position::do_null_move(StateInfo& newSt) {
   newSt.previous = st;
   st = &newSt;
 
-  if (st->epSquare != SQ_NONE)
+
+if (st->epSquare != SQ_NONE)
   {
       st->key ^= Zobrist::enpassant[file_of(st->epSquare)];
       st->epSquare = SQ_NONE;
