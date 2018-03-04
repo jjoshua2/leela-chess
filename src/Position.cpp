@@ -849,7 +849,7 @@ void Position::do_null_move(StateInfo& newSt) {
   newSt.previous = st;
   st = &newSt;
 
-  if (st->epSquare != SQ_NONE)
+if (st->epSquare != SQ_NONE)
   {
       st->key ^= Zobrist::enpassant[file_of(st->epSquare)];
       st->epSquare = SQ_NONE;
@@ -863,7 +863,7 @@ void Position::do_null_move(StateInfo& newSt) {
   st->move = MOVE_NULL;
 
   sideToMove = ~sideToMove;
-
+  
   set_check_info(st);
 
   assert(pos_is_ok());
@@ -905,7 +905,7 @@ Key Position::key_after(Move m) const {
 
 bool Position::is_draw() const {  //--didn't understand this _ply_ parameter; deleting it.
 
-  if (st->rule50 > 99 && (!checkers() || MoveList<LEGAL>(*this).size()))
+  if (st->rule50 > 99 && (!checkers() || MoveList<LEGAL>(*this).size()) || popcount(pos.pieces()) == 2)
       return true;
 
   int end = std::min(st->rule50, st->pliesFromNull);
